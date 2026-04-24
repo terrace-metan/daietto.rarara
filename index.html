@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>クイズに正解して、理想の私へ 💕 ダイエットクイズアプリ</title>
+<style>
+  :root {
+    --pink-bg: #fff5f8;
+    --pink-soft: #ffe0ec;
+    --pink-main: #ff6b9d;
+    --pink-deep: #e85a8a;
+    --pink-accent: #ffc5d8;
+    --text-main: #4a3a42;
+    --text-soft: #8a6b78;
+    --gold: #f6c752;
+    --mint: #8ed6c4;
+    --blue: #8fb8e0;
+    --lav: #c8a8dd;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: "Hiragino Maru Gothic ProN", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+    background: linear-gradient(180deg, #fff0f5 0%, #ffe4ee 100%);
+    color: var(--text-main);
+    min-height: 100vh;
+  }
+  .app {
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 16px 16px 48px;
+  }
+  /* ヘッダー */
+  header.top {
+    background: linear-gradient(135deg, #ff8bb2, #ff6b9d);
+    color: #fff;
+    border-radius: 22px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 20px rgba(255, 107, 157, 0.25);
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  header.top .title { font-weight: 700; font-size: 16px; line-height: 1.3; }
+  header.top .sub { font-size: 11px; opacity: .9; }
+  header.top .heart { font-size: 22px; }
+
+  /* カード共通 */
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 4px 14px rgba(255, 130, 170, 0.12);
+    margin-bottom: 14px;
+  }
+  .card h2 {
+    margin: 0 0 10px;
+    font-size: 15px;
+    color: var(--pink-deep);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ステージ表示 */
+  .stage-card { text-align: center; }
+  .stage-label {
+    display: inline-block;
+    background: var(--pink-accent);
+    color: var(--pink-deep);
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .stage-weight {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--pink-deep);
+    margin: 6px 0 4px;
+  }
+  .stage-char {
+    width: 180px; height: 240px;
+    margin: 4px auto 8px;
+    display: block;
+    object-fit: contain;
+  }
+  img.stage-char { width: 180px; height: auto; max-height: 320px; }
+  .stage-traits {
+    text-align: left;
+    font-size: 12px;
+    color: var(--text-soft);
+    background: var(--pink-bg);
+    border-radius: 14px;
+    padding: 10px 12px;
+    line-height: 1.8;
+  }
+  .stage-traits .row { display: flex; gap: 6px; }
+  .stage-traits .row b {
+    color: var(--pink-deep);
+    min-width: 44px; font-weight: 700;
+  }
+
+  /* EXP / レベル */
+  .exp-card { display: flex; flex-direction: column; gap: 8px; }
+  .exp-head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px;
+  }
+  .exp-head .lvl-circle {
+    background: var(--pink-main);
+    color: #fff;
+    width: 44px; height: 44px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 18px;
+    box-shadow: 0 3px 8px rgba(255,107,157,.4);
+    flex-direction: column; line-height: 1;
+  }
+  .exp-head .lvl-circle small { font-size: 9px; font-weight: 600; margin-top: 2px; }
+  .exp-bar {
+    background: var(--pink-soft);
+    border-radius: 999px;
+    height: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+  .exp-fill {
+    background: linear-gradient(90deg, #ff8bb2, #ff6b9d);
+    height: 100%;
+    transition: width .6s ease;
+  }
+  .exp-text { text-align: right; font-size: 11px; color: var(--text-soft); }
+
+  /* カテゴリ選択 */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .cat-btn {
+    border: 2px solid var(--pink-soft);
+    background: #fff;
+    border-radius: 16px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: inherit;
+    color: var(--text-main);
+  }
+  .cat-btn:hover { transform: translateY(-2px); border-color: var(--pink-main); }
+  .cat-btn.random {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #ff8bb2, #ff6b9d);
+    color: #fff;
+    border-color: transparent;
+    font-weight: 700;
+  }
+  .cat-btn .ico { font-size: 24px; display: block; margin-bottom: 2px; }
+  .cat-btn .nm { font-size: 13px; font-weight: 700; }
+  .cat-btn .cnt { font-size: 10px; color: var(--text-soft); }
+  .cat-btn.random .cnt { color: rgba(255,255,255,.85); }
+
+  /* クイズ画面 */
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--text-soft); margin-bottom: 8px;
+  }
+  .quiz-cat {
+    background: var(--pink-accent);
+    color: var(--pink-deep);
+    padding: 3px 10px; border-radius: 999px;
+    font-weight: 700; font-size: 11px;
+  }
+  .q-text {
+    font-size: 15px; font-weight: 700;
+    line-height: 1.55; margin: 10px 0 14px;
+  }
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice {
+    background: #fff;
+    border: 2px solid var(--pink-soft);
+    border-radius: 14px;
+    padding: 12px 14px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    text-align: left;
+    color: var(--text-main);
+    transition: all .15s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .choice:hover:not(:disabled) { border-color: var(--pink-main); background: #fff5f8; }
+  .choice:disabled { cursor: default; opacity: .95; }
+  .choice .letter {
+    background: var(--pink-soft);
+    color: var(--pink-deep);
+    width: 26px; height: 26px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+  }
+  .choice.correct {
+    background: #e8f7ee; border-color: #6dbf85;
+  }
+  .choice.correct .letter { background: #6dbf85; color: #fff; }
+  .choice.wrong {
+    background: #fde8ec; border-color: #e57b8f;
+  }
+  .choice.wrong .letter { background: #e57b8f; color: #fff; }
+
+  .feedback {
+    margin-top: 12px;
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+  }
+  .feedback.ok { background: #e8f7ee; color: #3a8355; }
+  .feedback.ng { background: #fde8ec; color: #b54362; }
+  .feedback .big {
+    font-size: 22px; font-weight: 700; margin-bottom: 4px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .feedback .exp-gain { font-size: 15px; font-weight: 700; }
+  .feedback .explain {
+    margin-top: 10px; font-size: 12px; color: var(--text-main);
+    background: #fff; padding: 10px; border-radius: 10px;
+    text-align: left; line-height: 1.6;
+  }
+
+  /* 共通ボタン */
+  .btn {
+    background: linear-gradient(135deg, #ff8bb2, #ff6b9d);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 13px 20px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+    transition: transform .1s;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.ghost {
+    background: #fff; color: var(--pink-deep);
+    border: 2px solid var(--pink-main);
+    box-shadow: none;
+  }
+
+  .row-btn { display: flex; gap: 10px; margin-top: 12px; }
+  .row-btn .btn { flex: 1; }
+
+  /* レベルアップ */
+  .levelup-overlay {
+    position: fixed; inset: 0;
+    background: rgba(255, 192, 220, .88);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    animation: fadein .3s;
+  }
+  @keyframes fadein { from {opacity: 0;} to {opacity: 1;} }
+  .levelup-box {
+    background: #fff;
+    border-radius: 24px;
+    padding: 24px;
+    width: 85%; max-width: 360px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(255,107,157,.5);
+    animation: pop .5s cubic-bezier(.17,.67,.48,1.2);
+  }
+  @keyframes pop { from{transform: scale(.4); opacity: 0;} to{transform: scale(1); opacity: 1;} }
+  .levelup-box h2 {
+    color: var(--pink-deep);
+    margin: 0 0 6px;
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+  .levelup-box .sparkle { font-size: 40px; margin: 6px 0; }
+  .levelup-box .transform { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 10px 0; }
+  .levelup-box .transform svg,
+  .levelup-box .transform img { width: 90px !important; height: 120px !important; object-fit: contain; }
+  .levelup-box .arrow { font-size: 22px; color: var(--pink-main); }
+  .levelup-box .weight-change { font-size: 14px; color: var(--text-soft); margin: 6px 0 14px; }
+  .levelup-box .weight-change b { color: var(--pink-deep); }
+
+  /* 特徴 */
+  .features {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+    margin-top: 8px;
+  }
+  .feat {
+    background: var(--pink-bg);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .feat .t { font-weight: 700; color: var(--pink-deep); font-size: 12px; display: block; margin-bottom: 2px; }
+
+  /* 完了画面 */
+  .done-card { text-align: center; }
+  .done-card .emoji { font-size: 48px; }
+  .done-card h2 { color: var(--pink-deep); font-size: 20px; margin: 8px 0; }
+  .score { font-size: 30px; font-weight: 700; color: var(--pink-deep); margin: 10px 0; }
+
+  .hidden { display: none !important; }
+
+  /* 小さい画面対応 */
+  @media (max-width: 380px) {
+    .stage-char { width: 150px; height: 200px; }
+    .app { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ヘッダー -->
+  <header class="top">
+    <span class="heart">💕</span>
+    <div>
+      <div class="title">クイズに正解して、理想の私へ</div>
+      <div class="sub">ダイエットクイズアプリ ✨</div>
+    </div>
+  </header>
+
+  <!-- ホーム画面 -->
+  <section id="home">
+
+    <!-- ステージ&キャラ -->
+    <div class="card stage-card">
+      <div class="stage-label" id="homeStageLabel">ステージ0（スタート）</div>
+      <div class="stage-weight" id="homeWeight">100kg</div>
+      <div id="homeCharWrap"></div>
+      <div class="stage-traits" id="homeTraits"></div>
+    </div>
+
+    <!-- EXP -->
+    <div class="card exp-card">
+      <div class="exp-head">
+        <div>
+          <div style="font-size:11px;color:var(--text-soft);">経験値</div>
+          <div style="font-size:13px;font-weight:700;" id="expHeadText">0 / 500 EXP</div>
+        </div>
+        <div class="lvl-circle">
+          <span id="lvlNum">0</span><small>Lv</small>
+        </div>
+      </div>
+      <div class="exp-bar"><div class="exp-fill" id="expFill" style="width:0%"></div></div>
+      <div class="exp-text" id="expCorrectText">正解数: 0問</div>
+    </div>
+
+    <!-- カテゴリ -->
+    <div class="card">
+      <h2>💖 問題にチャレンジ</h2>
+      <div class="category-grid" id="catGrid"></div>
+    </div>
+
+    <!-- 特徴 -->
+    <div class="card">
+      <h2>✨ このアプリの特徴</h2>
+      <div class="features">
+        <div class="feat"><span class="t">🍽 楽しく学べる</span>食事・運動・睡眠・メンタルを4択で</div>
+        <div class="feat"><span class="t">💕 見た目が変化</span>レベルアップで理想の自分に</div>
+        <div class="feat"><span class="t">📖 自分のストーリー</span>毎日の積み重ねが力に</div>
+        <div class="feat"><span class="t">📊 がんばり可視化</span>正解数でレベルがUP</div>
+      </div>
+      <div style="margin-top:10px; text-align:center;">
+        <button class="btn ghost" onclick="resetConfirm()">進捗をリセット</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- クイズ画面 -->
+  <section id="quiz" class="hidden">
+    <div class="card">
+      <div class="quiz-header">
+        <span class="quiz-cat" id="qCat">食事・栄養</span>
+        <span id="qProgress">1 / 10</span>
+      </div>
+      <div class="q-text" id="qText"></div>
+      <div class="choices" id="qChoices"></div>
+      <div id="qFeedback"></div>
+      <div id="qNextWrap" class="hidden">
+        <button class="btn" id="qNextBtn">次の問題へ ✨</button>
+      </div>
+    </div>
+    <button class="btn ghost" onclick="endQuiz()">ホームに戻る</button>
+  </section>
+
+  <!-- 結果画面 -->
+  <section id="done" class="hidden">
+    <div class="card done-card">
+      <div class="emoji">🎉</div>
+      <h2>おつかれさま！</h2>
+      <div class="score" id="doneScore">5 / 10 問 正解</div>
+      <div style="color:var(--text-soft); font-size:13px;" id="doneMsg">今回の経験値 +500EXP ✨</div>
+    </div>
+    <button class="btn" onclick="goHome()">ホームに戻る 💕</button>
+  </section>
+
+</div>
+
+<!-- レベルアップ用オーバーレイ（JSで挿入） -->
+<div id="levelup" class="hidden"></div>
+
+<script>
+/* =========================
+   ステージ定義
+   ========================= */
+const STAGES = [
+  { lvl:0, label:"ステージ0（スタート）", weight:"100kg", color:"#d8a7a0",
+    traits:{ 体型:"全体的にかなりふっくら", 姿勢:"猫背でだるそう", 肌:"くすみ・ニキビ・乾燥", 表情:"疲れていて自信がない", 生活:"不規則・運動習慣なし" } },
+  { lvl:1, label:"ステージ1", weight:"80kg", color:"#d8b0a8",
+    traits:{ 体型:"脂肪が多く重たそう", 姿勢:"猫背で姿勢が悪い", 肌:"くすみが強く荒れ気味", 表情:"むくみやすく自信がない", 生活:"運動不足・食生活が乱れがち" } },
+  { lvl:2, label:"ステージ2", weight:"70kg", color:"#e0b5b0",
+    traits:{ 体型:"全体的に丸みが残る", 姿勢:"少し改善の余地あり", 肌:"くすみが少しマシに", 表情:"まだ自信が持てない", 生活:"少しずつ改善を意識" } },
+  { lvl:3, label:"ステージ3", weight:"60kg", color:"#e8bcb5",
+    traits:{ 体型:"丸みが取れてきた", 姿勢:"徐々に良くなってきた", 肌:"トーンが明るくなってきた", 表情:"自信がついてきた", 生活:"習慣が安定し始める" } },
+  { lvl:4, label:"ステージ4", weight:"50kg", color:"#f0c5bc",
+    traits:{ 体型:"メリハリのあるスリム体型", 姿勢:"姿勢が良く美しい", 肌:"透明感が増してキレイに", 表情:"明るく自信がある", 生活:"習慣が定着し毎日が充実" } },
+  { lvl:5, label:"ステージ5（ゴール）", weight:"45kg", color:"#f6d0c6",
+    traits:{ 体型:"理想のスリム体型", 姿勢:"美しくバランスが良い", 肌:"ツヤ・透明感MAX", 表情:"笑顔が素敵で自信満々", 生活:"自分を大切にする毎日" } }
+];
+
+/* =========================
+   キャラ画像ローダー
+   - まずchar-0.png〜char-5.pngを試す
+   - 失敗したらSVGにフォールバック
+   ========================= */
+function charImg(stage, opts = {}) {
+  const size = opts.size || 200;
+  const id = "char_" + Math.random().toString(36).slice(2, 9);
+  // HTMLを返し、loadチェックをDOM挿入後に実行
+  setTimeout(() => {
+    const img = document.getElementById(id);
+    if (!img) return;
+    img.onerror = () => {
+      const wrap = document.createElement("div");
+      wrap.innerHTML = charSVG(stage, opts);
+      img.replaceWith(wrap.firstElementChild);
+    };
+    // もう既にエラー状態なら即実行
+    if (img.complete && img.naturalWidth === 0) img.onerror();
+  }, 0);
+  return `<img id="${id}" src="char-${stage}.png" alt="stage-${stage}" class="stage-char" style="width:${size}px;max-height:${size*1.5}px;">`;
+}
+
+/* =========================
+   キャラSVG（6段階・フォールバック用）
+   - 下半身の幅とサイズで進化を表現
+   ========================= */
+function charSVG(stage, opts = {}) {
+  // stage: 0..5
+  // bodyW: 下半身の幅  headW: 顔の幅  hair: 色バリエーション
+  const conf = [
+    { bodyW: 70, armW: 16, cheek: 7, skinW: 60, smile: 0 },   // 0
+    { bodyW: 62, armW: 14, cheek: 6, skinW: 55, smile: 0 },   // 1
+    { bodyW: 54, armW: 12, cheek: 5, skinW: 50, smile: 1 },   // 2
+    { bodyW: 44, armW: 10, cheek: 4, skinW: 45, smile: 2 },   // 3
+    { bodyW: 36, armW: 9,  cheek: 3, skinW: 40, smile: 3 },   // 4
+    { bodyW: 32, armW: 8,  cheek: 3, skinW: 38, smile: 4 }    // 5
+  ][stage];
+  const shirt = ["#d6c4a8","#e8d4b8","#f5c4cf","#f5c4cf","#f2e0dd","#faf2f3"][stage];
+  const pants = ["#9a8070","#9a8070","#b58e8a","#b58e8a","#b5c9de","#f8d7e1"][stage];
+  const isGoal = stage === 5;
+  const isLate = stage >= 4;
+  const mouth = conf.smile === 0
+    ? `<path d="M 100 120 q 0 4 6 4" stroke="#7a4c4f" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
+    : conf.smile === 1
+    ? `<path d="M 97 120 q 3 3 6 0" stroke="#7a4c4f" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
+    : conf.smile === 2
+    ? `<path d="M 96 119 q 4 4 8 0" stroke="#7a4c4f" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
+    : conf.smile === 3
+    ? `<path d="M 95 118 q 5 6 10 0" stroke="#7a4c4f" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
+    : `<path d="M 94 117 q 6 8 12 0" stroke="#7a4c4f" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+
+  const sparkles = isGoal ? `
+    <g opacity=".9">
+      <text x="22" y="30" font-size="16" fill="#f6c752">✦</text>
+      <text x="170" y="40" font-size="20" fill="#ffb9d2">✦</text>
+      <text x="20" y="150" font-size="14" fill="#c8a8dd">✧</text>
+      <text x="175" y="180" font-size="16" fill="#f6c752">✦</text>
+      <text x="10" y="220" font-size="12" fill="#ffb9d2">✧</text>
+    </g>` : "";
+
+  // 上半身色（シャツ）と下半身色（パンツ/スカート）
+  // ゴールはワンピース風
+  const lowerShape = isGoal
+    ? `<path d="M ${100 - 28} 175
+               L ${100 - 38} 235
+               L ${100 + 38} 235
+               L ${100 + 28} 175 Z"
+            fill="${pants}" stroke="#e8a4b8" stroke-width="1.2"/>`
+    : `<rect x="${100 - conf.bodyW/2 + 4}" y="175" width="${conf.bodyW - 8}" height="48"
+            rx="8" fill="${pants}" stroke="#9a7370" stroke-width="1"/>`;
+
+  // シャツ形
+  const upperShape = `
+    <path d="M ${100 - conf.skinW/2} 110
+             C ${100 - conf.skinW/2 - 6} 140, ${100 - conf.bodyW/2} 160, ${100 - conf.bodyW/2} 180
+             L ${100 + conf.bodyW/2} 180
+             C ${100 + conf.bodyW/2} 160, ${100 + conf.skinW/2 + 6} 140, ${100 + conf.skinW/2} 110
+             Z" fill="${shirt}" stroke="#c9a89b" stroke-width="1.2"/>`;
+
+  // 髪（頭の後ろ）
+  const hairBack = `
+    <path d="M 74 75
+             Q 66 60 78 48
+             Q 82 34 98 34
+             Q 115 30 126 44
+             Q 138 56 128 80
+             L 128 96
+             Q 120 92 112 92
+             Q 105 94 100 92
+             Q 95 94 88 92
+             Q 80 92 72 96 Z"
+          fill="#8c5b44"/>`;
+
+  // お団子
+  const bun = `
+    <circle cx="98" cy="40" r="11" fill="#8c5b44"/>
+    <circle cx="98" cy="40" r="7" fill="#a56d50" opacity=".6"/>`;
+
+  // 顔
+  const face = `
+    <ellipse cx="100" cy="92" rx="${conf.skinW/2 * 0.6}" ry="${conf.skinW/2 * 0.72}" fill="#f6d7c6" stroke="#c9a89b" stroke-width=".8"/>
+    <!-- 前髪 -->
+    <path d="M 78 72 Q 100 58 124 74 Q 118 82 110 78 Q 104 85 96 80 Q 88 85 82 82 Z" fill="#8c5b44"/>
+    <!-- 目 -->
+    <ellipse cx="92" cy="98" rx="2.3" ry="3" fill="#3c2620"/>
+    <ellipse cx="108" cy="98" rx="2.3" ry="3" fill="#3c2620"/>
+    <circle cx="92.7" cy="97.3" r=".7" fill="#fff"/>
+    <circle cx="108.7" cy="97.3" r=".7" fill="#fff"/>
+    <!-- ほお -->
+    <circle cx="87" cy="108" r="${conf.cheek/1.6}" fill="#f7b9c2" opacity=".7"/>
+    <circle cx="113" cy="108" r="${conf.cheek/1.6}" fill="#f7b9c2" opacity=".7"/>
+    ${mouth}`;
+
+  // 腕
+  const arms = `
+    <ellipse cx="${100 - conf.bodyW/2 - 3}" cy="150" rx="${conf.armW/2}" ry="28" fill="${shirt}" stroke="#c9a89b" stroke-width="1"/>
+    <ellipse cx="${100 + conf.bodyW/2 + 3}" cy="150" rx="${conf.armW/2}" ry="28" fill="${shirt}" stroke="#c9a89b" stroke-width="1"/>
+    <circle cx="${100 - conf.bodyW/2 - 3}" cy="178" r="${conf.armW/2.2}" fill="#f6d7c6"/>
+    <circle cx="${100 + conf.bodyW/2 + 3}" cy="178" r="${conf.armW/2.2}" fill="#f6d7c6"/>`;
+
+  // 脚
+  const legs = isGoal
+    ? `<ellipse cx="90" cy="252" rx="6" ry="10" fill="#f6d7c6"/>
+       <ellipse cx="110" cy="252" rx="6" ry="10" fill="#f6d7c6"/>`
+    : `<ellipse cx="${100 - conf.bodyW/4}" cy="252" rx="${conf.armW/1.8}" ry="14" fill="#f6d7c6"/>
+       <ellipse cx="${100 + conf.bodyW/4}" cy="252" rx="${conf.armW/1.8}" ry="14" fill="#f6d7c6"/>`;
+
+  // 靴
+  const shoes = `
+    <ellipse cx="${isGoal ? 90 : 100 - conf.bodyW/4}" cy="262" rx="${isGoal ? 7 : conf.armW/1.5}" ry="4" fill="${isLate ? '#fff' : '#8c5b44'}" stroke="#6a473c" stroke-width=".8"/>
+    <ellipse cx="${isGoal ? 110 : 100 + conf.bodyW/4}" cy="262" rx="${isGoal ? 7 : conf.armW/1.5}" ry="4" fill="${isLate ? '#fff' : '#8c5b44'}" stroke="#6a473c" stroke-width=".8"/>`;
+
+  const size = opts.size || 200;
+  return `
+    <svg viewBox="0 0 200 270" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size*270/200}" class="stage-char">
+      ${sparkles}
+      ${hairBack}
+      ${bun}
+      <!-- 首 -->
+      <rect x="95" y="118" width="10" height="8" fill="#f6d7c6"/>
+      ${arms}
+      ${upperShape}
+      ${lowerShape}
+      ${legs}
+      ${shoes}
+      ${face}
+    </svg>`;
+}
+
+/* =========================
+   問題データ（64問）
+   ========================= */
+const QUESTIONS = [
+  // -------- 食事・栄養（16問） --------
+  {c:"diet", q:"食物繊維が多く含まれているのはどっち？", a:["白ごはん","玄米ごはん","うどん","食パン"], ans:1, e:"玄米は精米されていない分、食物繊維が白米の約6倍。血糖値の上昇もゆるやかです。"},
+  {c:"diet", q:"たんぱく質1gは何kcal？", a:["4kcal","7kcal","9kcal","12kcal"], ans:0, e:"たんぱく質と糖質は1gあたり4kcal、脂質は9kcal。覚えておくとカロリー計算が楽になります。"},
+  {c:"diet", q:"脂質1gは何kcal？", a:["4kcal","5kcal","7kcal","9kcal"], ans:3, e:"脂質は同じ1gでも糖質・たんぱく質の2倍以上のカロリー。揚げ物が高カロリーな理由です。"},
+  {c:"diet", q:"食事の最初に食べると血糖値の急上昇を抑えやすいのは？", a:["ごはん","野菜・食物繊維","肉","ジュース"], ans:1, e:"野菜から食べる「ベジファースト」は血糖値の急上昇を抑え、脂肪蓄積を防ぎます。"},
+  {c:"diet", q:"満腹中枢が働き始めるまで、食べ始めてから約何分かかる？", a:["5分","10分","20分","40分"], ans:2, e:"約20分かかるため、よく噛んでゆっくり食べると食べ過ぎを防げます。"},
+  {c:"diet", q:"体の中でもっとも基礎代謝が高い組織は？", a:["脂肪","骨格筋","皮膚","骨"], ans:1, e:"骨格筋は体重の約40％を占め、基礎代謝の約2割を担います。筋肉を増やすと太りにくい体に。"},
+  {c:"diet", q:"PFCバランスのPは何を表す？", a:["たんぱく質","脂質","糖質","食物繊維"], ans:0, e:"P=Protein（たんぱく質）、F=Fat（脂質）、C=Carbohydrate（糖質）。三大栄養素の配分です。"},
+  {c:"diet", q:"一般的な成人女性の1日の水分摂取目安は？", a:["約500mL","約1L","約1.5〜2L","約3L"], ans:2, e:"飲み物として1.5〜2L程度が目安。水分不足は代謝低下やむくみの原因に。"},
+  {c:"diet", q:"同じ100gで最もカロリーが低いのは？", a:["バナナ","きゅうり","鶏むね肉","アボカド"], ans:1, e:"きゅうりは約14kcal。水分が多く、低カロリーで満足感を出すのに役立ちます。"},
+  {c:"diet", q:"食物繊維が特に豊富な野菜は？", a:["レタス","キャベツ","ごぼう","もやし"], ans:2, e:"ごぼうは可食部100gあたり約5.7g。腸内環境を整えダイエットの味方に。"},
+  {c:"diet", q:"間食として比較的おすすめなのは？", a:["スナック菓子","ミルクチョコ","素焼きナッツ","菓子パン"], ans:2, e:"ナッツは良質な脂質・ビタミン・ミネラルを含み、少量で満足感が得られます。1日20〜25gが目安。"},
+  {c:"diet", q:"成人女性の1日の食物繊維推奨量は？", a:["5g以上","10g以上","18g以上","50g以上"], ans:2, e:"成人女性は1日18g以上（厚労省 食事摂取基準）。実際は6〜7g不足しがちです。"},
+  {c:"diet", q:"GI値（血糖値の上がりやすさ）が低いのは？", a:["白米","食パン","玄米","うどん"], ans:2, e:"玄米は低GI食品。インスリンの急上昇を抑え、脂肪の蓄積を防ぎやすくなります。"},
+  {c:"diet", q:"摂りすぎ注意とされるトランス脂肪酸が多いのは？", a:["オリーブオイル","魚の脂","マーガリン","ごま油"], ans:2, e:"マーガリンやショートニングに多く、摂りすぎは悪玉コレステロール増加の原因に。"},
+  {c:"diet", q:"朝食を抜くことで起こりやすいのは？", a:["代謝が上がる","集中力がUP","過食や血糖値の乱高下","自動的にやせる"], ans:2, e:"空腹が長引くと次の食事で食べ過ぎやすく、血糖値も乱高下。結果太りやすくなります。"},
+  {c:"diet", q:"野菜を先に食べる「ベジファースト」の主な効果は？", a:["カロリーが減る","血糖値の急上昇を抑える","筋肉が増える","脂肪が燃える"], ans:1, e:"食物繊維が先に入ると糖の吸収がゆるやかに。インスリン急増を防ぎ、太りにくくなります。"},
+
+  // -------- 運動（16問） --------
+  {c:"move", q:"脂肪1kgを減らすのに必要なカロリーは？", a:["約1,000kcal","約3,000kcal","約7,200kcal","約20,000kcal"], ans:2, e:"脂肪1kgは約7,200kcal。1日300kcalの赤字で約24日が目安です。"},
+  {c:"move", q:"1日の歩数の目安としてよく推奨されるのは？", a:["3,000歩","5,000歩","8,000歩","20,000歩"], ans:2, e:"健康維持には1日8,000歩、そのうち中強度20分が一つの目安とされています。"},
+  {c:"move", q:"筋肉が増えると基礎代謝は？", a:["下がる","変わらない","上がる","脂肪に変わる"], ans:2, e:"筋肉は代謝の高い組織。筋肉量が増えると何もしなくても消費するカロリーが増えます。"},
+  {c:"move", q:"同じ時間で最も消費カロリーが高い運動は（一般的に）？", a:["ウォーキング","ヨガ","ジョギング","水泳（クロール）"], ans:3, e:"水泳は全身運動かつ水の抵抗もあり高消費。クロールは1時間で500kcal超が目安です。"},
+  {c:"move", q:"スクワットで主に鍛えられる筋肉は？", a:["大腿四頭筋（太もも前）","上腕二頭筋","僧帽筋","腹直筋"], ans:0, e:"下半身最大の筋肉群が使われるため、消費カロリー・代謝UPの効果が大きい種目です。"},
+  {c:"move", q:"運動後のストレッチの主な目的は？", a:["筋肉を増やす","柔軟性向上と疲労回復","体温を下げる","体重を減らす"], ans:1, e:"緊張した筋肉をゆるめ、血流を促して疲労物質を流す効果があります。"},
+  {c:"move", q:"HIITとは何の略？", a:["高強度インターバルトレーニング","高速伸縮運動","ヒップトレーニング","健康維持トレ"], ans:0, e:"High-Intensity Interval Training。短時間で高い脂肪燃焼・心肺機能UP効果が期待できます。"},
+  {c:"move", q:"脂肪燃焼に効果的な目安の心拍数は？", a:["最大心拍数の30%","最大心拍数の60〜70%","最大心拍数の90%以上","心拍数は関係ない"], ans:1, e:"「ややきつい」程度の強度。（220−年齢）×0.6〜0.7 が目安の心拍数です。"},
+  {c:"move", q:"筋トレの頻度としておすすめは？", a:["毎日同じ部位","週2〜3回（部位を分ける）","月1回","年に数回"], ans:1, e:"筋繊維の回復に48〜72時間必要。週2〜3回が成長と回復のバランスがよい頻度です。"},
+  {c:"move", q:"ウォーキングのフォームで正しいのは？", a:["前かがみでつま先から着地","背筋を伸ばしかかとから着地","腕を振らずに歩く","速度はゆっくり一定"], ans:1, e:"背筋を伸ばしてかかとから着地→つま先で蹴り出すと、姿勢改善と消費UPにつながります。"},
+  {c:"move", q:"体幹トレーニングではないのは？", a:["プランク","レッグカール","ドローイン","サイドプランク"], ans:1, e:"レッグカールは太もも裏（ハムストリング）の種目で体幹ではありません。"},
+  {c:"move", q:"運動後30分以内のゴールデンタイムに摂りたい栄養は？", a:["脂質メイン","たんぱく質＋糖質","塩分","繊維質"], ans:1, e:"筋肉の修復にはたんぱく質、グリコーゲン回復には糖質。両方摂るのが理想です。"},
+  {c:"move", q:"空腹時の激しい運動のデメリットは？", a:["脂肪だけ燃える","筋肉が分解されやすい","酸素が増える","体温が下がる"], ans:1, e:"エネルギー不足で筋肉（アミノ酸）を分解してしまい、代謝低下につながる可能性があります。"},
+  {c:"move", q:"有酸素運動で脂肪が優位に燃え始めるのは運動開始から？", a:["すぐ","約5分後","約20分後","1時間後"], ans:2, e:"開始直後は糖が主。20分を過ぎると脂肪の比率が高まるとされます。短時間の積み重ねでもOKです。"},
+  {c:"move", q:"運動中の水分補給の適切なタイミングは？", a:["のどが渇いてから","一度にたくさん","のどが渇く前にこまめに","運動後だけ"], ans:2, e:"のどの渇きは脱水が始まったサイン。少量ずつこまめに補給するのが鉄則です。"},
+  {c:"move", q:"お腹まわりを引き締めるのにもっとも効果的なのは？", a:["腹筋100回だけ","全身の有酸素＋筋トレ","食事制限だけ","部分のマッサージだけ"], ans:1, e:"部分やせは難しく、全身の脂肪を減らす＋筋トレで姿勢を整えるのが効果的です。"},
+
+  // -------- 睡眠（16問） --------
+  {c:"sleep", q:"成人の推奨睡眠時間は？", a:["3〜5時間","5〜6時間","7〜9時間","10時間以上"], ans:2, e:"米国睡眠財団は成人に7〜9時間を推奨。睡眠不足は食欲ホルモンを乱します。"},
+  {c:"sleep", q:"満腹感を伝えるホルモンは？", a:["グレリン","レプチン","コルチゾール","インスリン"], ans:1, e:"レプチンは脂肪細胞から分泌され満腹感を伝達。睡眠不足で減少します。"},
+  {c:"sleep", q:"食欲を強めるホルモンは？", a:["グレリン","レプチン","メラトニン","ドーパミン"], ans:0, e:"胃から分泌され食欲を増進。睡眠不足で分泌が増えることが知られています。"},
+  {c:"sleep", q:"睡眠不足で増えるストレスホルモンは？", a:["レプチン","コルチゾール","セロトニン","成長ホルモン"], ans:1, e:"コルチゾールは血糖や脂肪蓄積に関わり、慢性的な上昇は内臓脂肪増加の一因に。"},
+  {c:"sleep", q:"成長ホルモンが多く分泌されるのは？", a:["起きてすぐ","食事中","深い睡眠中","午後"], ans:2, e:"入眠後の深いノンレム睡眠中にピーク。脂肪分解や筋肉修復に関わる大事なホルモンです。"},
+  {c:"sleep", q:"寝る前のスマホが良くない主な理由は？", a:["電磁波で太る","ブルーライトでメラトニンが抑制","画面で目が大きくなる","音が出る"], ans:1, e:"メラトニンは眠りを誘うホルモン。ブルーライトで分泌が遅れ、睡眠の質が低下します。"},
+  {c:"sleep", q:"入眠をスムーズにするのにおすすめなのは？", a:["寝る直前の熱いお風呂","就寝1〜2時間前のぬるめの入浴","寝る前の冷たいシャワー","夜の激しい運動"], ans:1, e:"38〜40℃のぬるめに入り深部体温を一度上げ、その後の低下で眠気が出ます。"},
+  {c:"sleep", q:"カフェインの効果が半分になる時間（半減期）は約？", a:["30分","1〜2時間","5〜6時間","24時間"], ans:2, e:"午後のコーヒーでも夜まで影響することがあります。敏感な人は昼以降は控えめに。"},
+  {c:"sleep", q:"睡眠の質を高める寝室の温度はおおよそ？", a:["10℃以下","16〜20℃","25〜28℃","30℃以上"], ans:1, e:"やや涼しいくらいが深部体温を下げやすく眠りが深まります（夏は26℃前後が現実的）。"},
+  {c:"sleep", q:"レム睡眠の特徴として正しいのは？", a:["体も脳も完全に休息","夢を見やすい","呼吸が止まる","体温が最も高い"], ans:1, e:"レム睡眠は眼球運動が活発で夢をみやすい浅めの眠り。記憶の整理にも関わります。"},
+  {c:"sleep", q:"寝る直前の食事が太りやすい理由は？", a:["消化に使う筋肉が増える","血糖が消費されにくく脂肪として蓄えられやすい","夜のカロリーは2倍","味覚が鋭くなる"], ans:1, e:"BMAL1というたんぱく質が夜に増え脂肪の取り込みを促進。就寝3時間前までに済ませたい。"},
+  {c:"sleep", q:"アルコールが睡眠に与える影響は？", a:["深く眠れる","寝つきは良いが中途覚醒が増え質が下がる","睡眠時間が伸びる","翌朝の代謝が上がる"], ans:1, e:"覚醒作用のあるアセトアルデヒドや利尿作用で夜中に目が覚めやすく、睡眠の質は落ちます。"},
+  {c:"sleep", q:"昼寝の適切な長さは？", a:["5分以内","20〜30分","1〜2時間","長ければ長いほど良い"], ans:1, e:"30分以内なら深い眠りに入る前に起きられ、スッキリ。長すぎは夜の睡眠を妨げます。"},
+  {c:"sleep", q:"朝日を浴びる効果として正しいのは？", a:["太りやすくなる","体内時計がリセットされ夜の眠りが深くなる","食欲が増す","体温が下がる"], ans:1, e:"朝の光はセロトニン分泌を促し、夜にメラトニンへ変換。規則正しい睡眠サイクルの土台です。"},
+  {c:"sleep", q:"メラトニンの材料となる物質は？", a:["セロトニン","コルチゾール","たんぱく質","脂肪"], ans:0, e:"日中に朝日を浴びて作られたセロトニンが、夜にメラトニンへ。日中の光浴びが大切。"},
+  {c:"sleep", q:"就寝直前に避けたい行動は？", a:["深呼吸","軽いストレッチ","激しい運動","読書"], ans:2, e:"激しい運動は交感神経を高ぶらせ寝つきを悪化。寝る3時間前までに済ませましょう。"},
+
+  // -------- メンタル・習慣（16問） --------
+  {c:"mind", q:"習慣化の目安とされる期間は？", a:["3日","3週間（21日間）","3ヶ月","3年"], ans:1, e:"「21日間ルール」が有名。さらに定着には66日程度かかるとする研究もあります。"},
+  {c:"mind", q:"ストレスで食欲が増えるのは、何のホルモンの影響？", a:["メラトニン","コルチゾール","成長ホルモン","グルカゴン"], ans:1, e:"コルチゾールは甘い物・脂っこいものへの欲求を高めます。ストレスケアは太らない土台です。"},
+  {c:"mind", q:"ダイエットで最も続きやすいのは？", a:["極端な食事制限","完璧にやる短期集中","小さく続けられる目標","気合いで突き進む"], ans:2, e:"小さな成功体験が継続を生みます。1日5分、野菜1皿など「下げた目標」が大切。"},
+  {c:"mind", q:"リバウンドの主な原因は？", a:["極端な食事制限","水分の飲みすぎ","運動のしすぎ","糖質の適量摂取"], ans:0, e:"極端な制限は代謝低下＋反動食いを招きます。持続可能な範囲にするのがコツ。"},
+  {c:"mind", q:"「マインドフルイーティング」とは？", a:["計算しながら食べる","味や体の感覚に集中して食べる","早食いする","ながら食いする"], ans:1, e:"今この瞬間の味・満腹感に集中し、食べ過ぎを防ぐ方法。スマホを置いて一口ずつ味わいます。"},
+  {c:"mind", q:"食事記録（レコーディング）の最大のメリットは？", a:["食費が減る","無意識の食行動を自覚できる","料理がうまくなる","胃が大きくなる"], ans:1, e:"「意外に食べていた」に気づくのが大事。写真だけでも効果があります。"},
+  {c:"mind", q:"SMART目標のSが表すのは？", a:["シンプル","Specific（具体的）","スタート","ストレス"], ans:1, e:"S:Specific, M:Measurable, A:Achievable, R:Relevant, T:Time-bound。具体的な目標が続きやすい。"},
+  {c:"mind", q:"続けるコツとして正しいのは？", a:["毎日完璧にやる","できない日は中断する","完璧を目指さず2日連続で休まない","罰を設ける"], ans:2, e:"「2日連続で休まない」は有効なルール。完璧より継続、がダイエット成功の鉄則です。"},
+  {c:"mind", q:"ごほうび設定で避けたほうがよいのは？", a:["新しい服","美容院","食べ物のごほうび","日記に花マル"], ans:2, e:"食べ物で報酬にすると、食＝ごほうびの回路が強化されて逆効果になりがち。"},
+  {c:"mind", q:"チートデイ（計画的に多めに食べる日）の目的は？", a:["罪悪感を味わう","代謝低下の予防と精神的リセット","運動不要にする","胃を大きくする"], ans:1, e:"停滞打破やストレス解消のため。ただし「事故のようなドカ食い」は別物です。"},
+  {c:"mind", q:"イライラして食べたくなった時の対処は？", a:["すぐ食べる","5分待って水を飲み、理由を書き出す","寝る","冷蔵庫を開け続ける"], ans:1, e:"感情と空腹を分ける練習を。5分で欲求は下がり、本当の空腹かが見えてきます。"},
+  {c:"mind", q:"人に「やる」と宣言することの効果は？", a:["続きやすくなる","必ずやる羽目になる","特に意味はない","逆に続かなくなる"], ans:0, e:"社会的コミットメント効果。SNSや家族への宣言でサボりにくくなります。"},
+  {c:"mind", q:"自己肯定感が下がる主な原因のひとつは？", a:["他人と比較しすぎる","水を飲む","本を読む","早起き"], ans:0, e:"SNSでの他人との比較はダイエットの天敵。自分の昨日と比べる視点がおすすめ。"},
+  {c:"mind", q:"続かない時に最初にやるとよいのは？", a:["やめる","目標を下げて再設定","もっと厳しくする","人のせいにする"], ans:1, e:"目標のハードルが高すぎるサイン。小さく続けられる形に設計し直しましょう。"},
+  {c:"mind", q:"「食べたい」と「お腹すいた」を区別する習慣を何という？", a:["マインドフルイーティング","ストレスイーティング","早食い","夜食"], ans:0, e:"体の空腹と心の空腹を分ける技術。続けるほど無駄食いが減ります。"},
+  {c:"mind", q:"睡眠不足の日に太りやすくなる主な理由は？", a:["消化が早い","食欲ホルモンが乱れ高カロリーなものを欲する","運動が減る","代謝が止まる"], ans:1, e:"睡眠不足でレプチンが減りグレリンが増加。甘い物や揚げ物が無性に欲しくなります。"},
+];
+
+const CATS = [
+  { key:"diet",  name:"食事・栄養",   icon:"🍱", color:"#f5a6b8" },
+  { key:"move",  name:"運動",         icon:"🏃‍♀️", color:"#f6c752" },
+  { key:"sleep", name:"睡眠",         icon:"🌙", color:"#8fb8e0" },
+  { key:"mind",  name:"メンタル・習慣", icon:"💗", color:"#c8a8dd" }
+];
+
+/* =========================
+   状態管理
+   ========================= */
+const EXP_PER_LVL = 500;
+const MAX_LVL = 5;
+const EXP_PER_CORRECT = 100;
+
+const state = load();
+
+function load() {
+  try {
+    const raw = localStorage.getItem("dietQuizState");
+    if (raw) return JSON.parse(raw);
+  } catch(e){}
+  return { exp: 0, correct: 0, answered: 0, seenIds: [] };
+}
+function save() {
+  try { localStorage.setItem("dietQuizState", JSON.stringify(state)); } catch(e){}
+}
+
+function getLevel() {
+  return Math.min(Math.floor(state.exp / EXP_PER_LVL), MAX_LVL);
+}
+function getLvlExp() {
+  const lvl = getLevel();
+  if (lvl >= MAX_LVL) return { cur: EXP_PER_LVL, need: EXP_PER_LVL };
+  return { cur: state.exp % EXP_PER_LVL, need: EXP_PER_LVL };
+}
+
+/* =========================
+   ホーム画面の描画
+   ========================= */
+function renderHome() {
+  const lvl = getLevel();
+  const stage = STAGES[lvl];
+  document.getElementById("homeStageLabel").textContent = stage.label;
+  document.getElementById("homeWeight").textContent = stage.weight;
+  document.getElementById("homeCharWrap").innerHTML = charImg(lvl);
+  const tr = stage.traits;
+  document.getElementById("homeTraits").innerHTML =
+    `<div class="row"><b>🍓 体型</b><span>${tr.体型}</span></div>
+     <div class="row"><b>🍓 姿勢</b><span>${tr.姿勢}</span></div>
+     <div class="row"><b>🍓 肌</b><span>${tr.肌}</span></div>
+     <div class="row"><b>🍓 表情</b><span>${tr.表情}</span></div>
+     <div class="row"><b>🍓 生活</b><span>${tr.生活}</span></div>`;
+
+  const { cur, need } = getLvlExp();
+  document.getElementById("lvlNum").textContent = lvl;
+  document.getElementById("expHeadText").textContent =
+    (lvl >= MAX_LVL) ? "MAX LEVEL 🎉" : `${cur} / ${need} EXP`;
+  document.getElementById("expFill").style.width =
+    (lvl >= MAX_LVL ? 100 : cur / need * 100) + "%";
+  document.getElementById("expCorrectText").textContent =
+    `正解 ${state.correct}問 / 回答 ${state.answered}問`;
+
+  // カテゴリボタン
+  const grid = document.getElementById("catGrid");
+  grid.innerHTML = "";
+  CATS.forEach(cat => {
+    const cnt = QUESTIONS.filter(q => q.c === cat.key).length;
+    const btn = document.createElement("button");
+    btn.className = "cat-btn";
+    btn.innerHTML = `
+      <span class="ico">${cat.icon}</span>
+      <span class="nm">${cat.name}</span>
+      <span class="cnt">${cnt}問</span>`;
+    btn.onclick = () => startQuiz(cat.key);
+    grid.appendChild(btn);
+  });
+  // ランダム
+  const rand = document.createElement("button");
+  rand.className = "cat-btn random";
+  rand.innerHTML = `
+    <span class="ico">🎲</span>
+    <span class="nm">ぜんぶからランダム10問</span>
+    <span class="cnt">全${QUESTIONS.length}問から</span>`;
+  rand.onclick = () => startQuiz("all");
+  grid.appendChild(rand);
+}
+
+/* =========================
+   クイズ処理
+   ========================= */
+let quiz = null;
+
+function pickQuestions(catKey, n = 10) {
+  let pool = catKey === "all" ? [...QUESTIONS] : QUESTIONS.filter(q => q.c === catKey);
+  // まだ答えていない問題を優先
+  const notSeen = pool.filter(q => !state.seenIds.includes(q.q));
+  const fill = (notSeen.length >= n) ? notSeen : [...notSeen, ...pool.filter(q => !notSeen.includes(q))];
+  return shuffle(fill).slice(0, Math.min(n, pool.length));
+}
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startQuiz(catKey) {
+  const questions = pickQuestions(catKey, 10);
+  if (questions.length === 0) return;
+  quiz = {
+    catKey,
+    questions,
+    idx: 0,
+    correct: 0,
+    startLvl: getLevel()
+  };
+  showScreen("quiz");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quiz.questions[quiz.idx];
+  const cat = CATS.find(c => c.key === q.c);
+  document.getElementById("qCat").textContent = cat.icon + " " + cat.name;
+  document.getElementById("qProgress").textContent = `${quiz.idx + 1} / ${quiz.questions.length}`;
+  document.getElementById("qText").textContent = q.q;
+  const choicesEl = document.getElementById("qChoices");
+  choicesEl.innerHTML = "";
+  // 選択肢はそのまま（ABCD）
+  const letters = ["A","B","C","D"];
+  q.a.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => answer(i, btn);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById("qFeedback").innerHTML = "";
+  document.getElementById("qNextWrap").classList.add("hidden");
+}
+
+function answer(picked, btnEl) {
+  const q = quiz.questions[quiz.idx];
+  const buttons = document.querySelectorAll(".choice");
+  buttons.forEach(b => b.disabled = true);
+
+  const isOk = picked === q.ans;
+  // 正解/不正解のスタイル
+  buttons[q.ans].classList.add("correct");
+  if (!isOk) btnEl.classList.add("wrong");
+
+  // フィードバック
+  const fb = document.createElement("div");
+  fb.className = "feedback " + (isOk ? "ok" : "ng");
+  fb.innerHTML = isOk
+    ? `<div class="big">✨ 正解！ ✨</div>
+       <div class="exp-gain">+${EXP_PER_CORRECT} EXP</div>
+       <div class="explain">${q.e}</div>`
+    : `<div class="big">💦 惜しい！</div>
+       <div class="exp-gain">正解は「${q.a[q.ans]}」</div>
+       <div class="explain">${q.e}</div>`;
+  document.getElementById("qFeedback").innerHTML = "";
+  document.getElementById("qFeedback").appendChild(fb);
+  document.getElementById("qNextWrap").classList.remove("hidden");
+
+  // 状態反映
+  state.answered += 1;
+  if (isOk) {
+    quiz.correct += 1;
+    state.correct += 1;
+    const beforeLvl = getLevel();
+    state.exp += EXP_PER_CORRECT;
+    const afterLvl = getLevel();
+    if (afterLvl > beforeLvl) {
+      // ステージアップ！ → 次へボタン押したタイミングで演出
+      quiz.levelUpPending = true;
+    }
+  }
+  if (!state.seenIds.includes(q.q)) state.seenIds.push(q.q);
+  save();
+}
+
+document.getElementById("qNextBtn").onclick = () => {
+  if (quiz.levelUpPending) {
+    quiz.levelUpPending = false;
+    showLevelUp(() => advance());
+  } else {
+    advance();
+  }
+};
+
+function advance() {
+  quiz.idx += 1;
+  if (quiz.idx >= quiz.questions.length) {
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function endQuiz() {
+  quiz = null;
+  showScreen("home");
+  renderHome();
+}
+
+function finishQuiz() {
+  const total = quiz.questions.length;
+  document.getElementById("doneScore").textContent = `${quiz.correct} / ${total} 問 正解`;
+  const gain = quiz.correct * EXP_PER_CORRECT;
+  let msg = `今回の経験値 +${gain} EXP`;
+  if (quiz.correct === total) msg = `全問正解！🎊 +${gain} EXP すごい！`;
+  else if (quiz.correct === 0) msg = `大丈夫、もう一度挑戦してみよう 💪`;
+  document.getElementById("doneMsg").textContent = msg;
+  showScreen("done");
+}
+
+function goHome() {
+  showScreen("home");
+  renderHome();
+}
+
+/* =========================
+   レベルアップ演出
+   ========================= */
+function showLevelUp(onClose) {
+  const lvl = getLevel();
+  const prev = STAGES[lvl - 1];
+  const cur = STAGES[lvl];
+  const overlay = document.getElementById("levelup");
+  overlay.className = "levelup-overlay";
+  overlay.innerHTML = `
+    <div class="levelup-box">
+      <div class="sparkle">✨🎉✨</div>
+      <h2>レベルアップ！</h2>
+      <div style="font-size:13px; color:var(--text-soft);">Level ${lvl - 1} → <b style="color:var(--pink-deep);">Level ${lvl}</b></div>
+      <div class="transform">
+        ${charImg(lvl - 1, {size: 80})}
+        <div class="arrow">➡</div>
+        ${charImg(lvl, {size: 80})}
+      </div>
+      <div class="weight-change"><b>${prev.weight} → ${cur.weight}</b><br><span style="font-size:12px;">${cur.traits.表情}</span></div>
+      <button class="btn" id="luClose">つづける 💕</button>
+    </div>`;
+  overlay.classList.remove("hidden");
+  document.getElementById("luClose").onclick = () => {
+    overlay.classList.add("hidden");
+    onClose();
+  };
+}
+
+/* =========================
+   画面切替 & リセット
+   ========================= */
+function showScreen(name) {
+  ["home","quiz","done"].forEach(id => {
+    document.getElementById(id).classList.toggle("hidden", id !== name);
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function resetConfirm() {
+  if (confirm("進捗（レベル・経験値・正解数）をすべてリセットしますか？")) {
+    state.exp = 0; state.correct = 0; state.answered = 0; state.seenIds = [];
+    save();
+    renderHome();
+  }
+}
+
+/* =========================
+   起動
+   ========================= */
+renderHome();
+</script>
+</body>
+</html>
